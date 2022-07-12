@@ -1,15 +1,14 @@
 import React from 'react';
+import { Meta, Story } from '@storybook/react';
 import theme from '../../../styles/theme';
 import Input from './Input';
 
 export default {
   title: 'Reusable Components/Input',
   component: Input
-};
+} as Meta;
 
-function OutlinedTemplate(args) {
-  return <Input {...args} />;
-}
+const OutlinedTemplate: Story = (args) => <Input variant="outlined" {...args} />;
 
 export const Outlined = OutlinedTemplate.bind({});
 Outlined.args = {
@@ -18,14 +17,11 @@ Outlined.args = {
   width: '74.4rem',
   height: '3.6rem',
   borderRadius: '10px',
-  variant: 'outlined',
   fontSize: '1rem',
   placeholder: '선택항목을 입력해주세요!'
 };
 
-function UnstyledTemplate(args) {
-  return <Input {...args} />;
-}
+const UnstyledTemplate: Story = (args) => <Input variant="unstyled" {...args} />;
 
 export const Unstyled = UnstyledTemplate.bind({});
 Unstyled.args = {
