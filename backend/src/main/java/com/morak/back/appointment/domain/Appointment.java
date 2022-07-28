@@ -128,4 +128,9 @@ public class Appointment extends BaseEntity {
         }
         return this.count;
     }
+
+    public void validateAvailableTimeRange(LocalDateTime startDateTime, LocalDateTime endDateTime) {
+        this.datePeriod.validateAvailableDateRange(startDateTime.toLocalDate(), endDateTime.toLocalDate());
+        this.timePeriod.validateAvailableTimeRange(startDateTime.toLocalTime(), endDateTime.toLocalTime());
+    }
 }
