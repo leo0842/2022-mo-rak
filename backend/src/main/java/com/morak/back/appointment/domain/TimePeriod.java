@@ -45,7 +45,7 @@ public class TimePeriod {
     }
 
     public void validateAvailableTimeRange(LocalTime startTime, LocalTime endTime) {
-        if (this.startTime.isBefore(startTime) || this.endTime.isAfter(endTime)) {
+        if (startTime.isBefore(this.startTime) || endTime.isAfter(this.endTime)) {
             throw new InvalidRequestException("약속잡기 가능 시간은 지정한 시간 이내여야 합니다.");
         }
     }

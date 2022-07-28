@@ -1,10 +1,12 @@
 package com.morak.back.appointment.application;
 
+import static com.morak.back.appointment.domain.AppointmentStatus.CLOSED;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
 
 import com.morak.back.appointment.domain.Appointment;
 import com.morak.back.appointment.domain.AppointmentRepository;
@@ -51,6 +53,7 @@ class AppointmentServiceTest {
     private final Member 에덴 = new Member(1L, "oauthId11", "eden", "eden-profile.com");
     private final Team 모락 = new Team(11L, "모락", "team-code");
     private final Appointment 회식_날짜_약속잡기 = Appointment.builder()
+            .id(101L)
             .host(에덴)
             .team(모락)
             .title("회식 날짜")
@@ -105,8 +108,7 @@ class AppointmentServiceTest {
     @Test
     void 약속잡기_목록을_조회한다() {
         // given
-        given(memberRepository.findById(anyLong())).willReturn(Optional.of(에덴));
-        given(teamRepository.findByCode(anyString())).willReturn(Optional.of(모락));
+        given(teamRepository.findIdByCode(anyString())).willReturn(Optional.of(모락.getId()));
         given(teamMemberRepository.existsByTeamIdAndMemberId(anyLong(), anyLong())).willReturn(true);
         given(appointmentRepository.findAllByTeamId(anyLong())).willReturn(List.of(회식_날짜_약속잡기, 스터디_날짜_약속잡기));
 
@@ -120,15 +122,45 @@ class AppointmentServiceTest {
     @Test
     void 약속잡기_단건을_조회한다() {
         // given
-        given(memberRepository.findById(anyLong())).willReturn(Optional.of(에덴));
-        given(teamRepository.findByCode(anyString())).willReturn(Optional.of(모락));
+        given(teamRepository.findIdByCode(anyString())).willReturn(Optional.of(모락.getId()));
         given(teamMemberRepository.existsByTeamIdAndMemberId(anyLong(), anyLong())).willReturn(true);
         given(appointmentRepository.findByCode(anyString())).willReturn(Optional.of(회식_날짜_약속잡기));
 
         // when
-        AppointmentResponse appointmentResponse = appointmentService.findAppointment(모락.getCode(), 1L, 회식_날짜_약속잡기.getCode());
+        AppointmentResponse appointmentResponse = appointmentService.findAppointment(모락.getCode(), 1L,
+                회식_날짜_약속잡기.getCode());
 
         // then
         assertThat(appointmentResponse.getTitle()).isEqualTo("회식 날짜");
+    }
+
+    @Test
+    void 약속잡기를_마감한다() {
+        //given
+        given(memberRepository.findById(anyLong())).willReturn(Optional.of(에덴));
+        given(teamRepository.findIdByCode(anyString())).willReturn(Optional.of(모락.getId()));
+        given(teamMemberRepository.existsByTeamIdAndMemberId(anyLong(), anyLong())).willReturn(true);
+        given(appointmentRepository.findByCode(anyString())).willReturn(Optional.of(회식_날짜_약속잡기));
+
+        //when
+        appointmentService.closeAppointment(모락.getCode(), 1L, 회식_날짜_약속잡기.getCode());
+
+        //then
+        assertThat(회식_날짜_약속잡기.getStatus()).isEqualTo(CLOSED);
+    }
+
+    @Test
+    void 약속잡기를_삭제한다() {
+        //given
+        given(memberRepository.findById(anyLong())).willReturn(Optional.of(에덴));
+        given(teamRepository.findIdByCode(anyString())).willReturn(Optional.of(모락.getId()));
+        given(teamMemberRepository.existsByTeamIdAndMemberId(anyLong(), anyLong())).willReturn(true);
+        given(appointmentRepository.findByCode(anyString())).willReturn(Optional.of(회식_날짜_약속잡기));
+
+        //when
+        appointmentService.deleteAppointment(모락.getCode(), 에덴.getId(), 회식_날짜_약속잡기.getCode());
+
+        //then
+        verify(appointmentRepository).deleteById(anyLong());
     }
 }

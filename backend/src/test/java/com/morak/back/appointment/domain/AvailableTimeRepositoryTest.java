@@ -1,14 +1,16 @@
 package com.morak.back.appointment.domain;
 
 import static com.morak.back.appointment.domain.AvailableTime.builder;
-import static java.time.LocalDateTime.now;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.morak.back.auth.domain.Member;
 import com.morak.back.auth.domain.MemberRepository;
+import com.morak.back.team.domain.Team;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
-import javax.validation.ConstraintViolationException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -34,7 +36,20 @@ class AvailableTimeRepositoryTest {
     @BeforeEach
     void setUp() {
         member = memberRepository.findById(1L).orElseThrow();
-        appointment = appointmentRepository.findByCode("FEsd23C1").orElseThrow();
+        this.appointment = appointmentRepository.save(
+                Appointment.builder()
+                        .host(member)
+                        .team(new Team(1L, "null", "null"))
+                        .title("회식 날짜")
+                        .description("필참!!")
+                        .startDate(LocalDate.now().plusDays(1))
+                        .endDate(LocalDate.now().plusDays(5))
+                        .startTime(LocalTime.of(14, 0))
+                        .endTime(LocalTime.of(18, 30))
+                        .durationHours(1)
+                        .durationMinutes(0)
+                        .build()
+        );
     }
 
     @Test
@@ -43,8 +58,8 @@ class AvailableTimeRepositoryTest {
         AvailableTime availableTime = builder()
                 .member(member)
                 .appointment(appointment)
-                .startDateTime(now().plusDays(1))
-                .endDateTime(now().plusDays(1).plusMinutes(30))
+                .startDateTime(LocalDateTime.of(LocalDate.now().plusDays(1), LocalTime.of(14, 0)))
+                .endDateTime(LocalDateTime.of(LocalDate.now().plusDays(1), LocalTime.of(14, 30)))
                 .build();
 
         // when
@@ -55,35 +70,20 @@ class AvailableTimeRepositoryTest {
     }
 
     @Test
-    void 약속잡기_가능_시작_시점이_현재보다_과거일_경우_예외를_던진다() {
-        // given
-        AvailableTime availableTime = builder()
-                .member(member)
-                .appointment(appointment)
-                .startDateTime(now().minusDays(1))
-                .endDateTime(now().minusDays(1).plusMinutes(30))
-                .build();
-
-        // when & then
-        assertThatThrownBy(() -> availableTimeRepository.save(availableTime))
-                .isInstanceOf(ConstraintViolationException.class);
-    }
-
-    @Test
     void 약속잡기_가능_시간을_모두_저장한다() {
         // given
         AvailableTime availableTime1 = builder()
                 .member(member)
                 .appointment(appointment)
-                .startDateTime(now().plusDays(1))
-                .endDateTime(now().plusDays(1).plusMinutes(30))
+                .startDateTime(LocalDateTime.of(LocalDate.now().plusDays(1), LocalTime.of(14, 0)))
+                .endDateTime(LocalDateTime.of(LocalDate.now().plusDays(1), LocalTime.of(14, 30)))
                 .build();
 
         AvailableTime availableTime2 = builder()
                 .member(member)
                 .appointment(appointment)
-                .startDateTime(now().plusDays(2))
-                .endDateTime(now().plusDays(2).plusMinutes(30))
+                .startDateTime(LocalDateTime.of(LocalDate.now().plusDays(1), LocalTime.of(14, 30)))
+                .endDateTime(LocalDateTime.of(LocalDate.now().plusDays(1), LocalTime.of(15, 0)))
                 .build();
 
         // when
@@ -102,15 +102,15 @@ class AvailableTimeRepositoryTest {
         AvailableTime availableTime1 = builder()
                 .member(member)
                 .appointment(appointment)
-                .startDateTime(now().withNano(0).plusDays(1))
-                .endDateTime(now().withNano(0).plusDays(1).plusMinutes(30))
+                .startDateTime(LocalDateTime.of(LocalDate.now().plusDays(1), LocalTime.of(14, 0)))
+                .endDateTime(LocalDateTime.of(LocalDate.now().plusDays(1), LocalTime.of(14, 30)))
                 .build();
 
         AvailableTime availableTime2 = builder()
                 .member(member)
                 .appointment(appointment)
-                .startDateTime(now().withNano(0).plusDays(1))
-                .endDateTime(now().withNano(0).plusDays(1).plusMinutes(30))
+                .startDateTime(LocalDateTime.of(LocalDate.now().plusDays(1), LocalTime.of(14, 0)))
+                .endDateTime(LocalDateTime.of(LocalDate.now().plusDays(1), LocalTime.of(14, 30)))
                 .build();
 
         // when & then
@@ -124,15 +124,15 @@ class AvailableTimeRepositoryTest {
         AvailableTime availableTime1 = builder()
                 .member(member)
                 .appointment(appointment)
-                .startDateTime(now().plusDays(1))
-                .endDateTime(now().plusDays(1).plusMinutes(30))
+                .startDateTime(LocalDateTime.of(LocalDate.now().plusDays(1), LocalTime.of(14, 0)))
+                .endDateTime(LocalDateTime.of(LocalDate.now().plusDays(1), LocalTime.of(14, 30)))
                 .build();
 
         AvailableTime availableTime2 = builder()
                 .member(member)
                 .appointment(appointment)
-                .startDateTime(now().plusDays(2))
-                .endDateTime(now().plusDays(2).plusMinutes(30))
+                .startDateTime(LocalDateTime.of(LocalDate.now().plusDays(1), LocalTime.of(14, 30)))
+                .endDateTime(LocalDateTime.of(LocalDate.now().plusDays(1), LocalTime.of(15, 0)))
                 .build();
 
         availableTimeRepository.saveAll(List.of(availableTime1, availableTime2));

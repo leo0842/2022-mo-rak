@@ -10,6 +10,7 @@ import com.morak.back.team.domain.TeamRepository;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Optional;
 import javax.validation.ConstraintViolationException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -86,6 +87,31 @@ class AppointmentRepositoryTest {
                 () -> assertThat(appointments).hasSize(2),
                 () -> assertThat(appointments.get(1).getTitle()).isEqualTo("스터디 회의 날짜 정하기")
         );
+    }
+
+    @Test
+    void 약속잡기_단건을_조회한다() {
+        //given
+        Appointment appointment = Appointment.builder()
+                .host(member)
+                .team(team)
+                .title("스터디 회의 날짜 정하기")
+                .description("필참!!")
+                .startDate(LocalDate.now().plusDays(1))
+                .endDate(LocalDate.now().plusDays(5))
+                .startTime(LocalTime.of(14, 0))
+                .endTime(LocalTime.of(18, 30))
+                .durationHours(1)
+                .durationMinutes(0)
+                .build();
+
+        Appointment savedAppointment = appointmentRepository.save(appointment);
+
+        //when
+        Appointment foundAppointment = appointmentRepository.findByCode(savedAppointment.getCode()).orElseThrow();
+
+        //then
+        assertThat(foundAppointment.getTitle()).isEqualTo("스터디 회의 날짜 정하기");
     }
 
     @Test
@@ -170,5 +196,31 @@ class AppointmentRepositoryTest {
 
         // then
         assertThat(appointment.getCount()).isEqualTo(0);
+    }
+
+    @Test
+    void 약속잡기를_삭제한다() {
+        //given
+        Appointment appointment = Appointment.builder()
+                .host(member)
+                .team(team)
+                .title("스터디 회의 날짜 정하기")
+                .description("필참!!")
+                .startDate(LocalDate.now().plusDays(1))
+                .endDate(LocalDate.now().plusDays(5))
+                .startTime(LocalTime.of(14, 0))
+                .endTime(LocalTime.of(18, 30))
+                .durationHours(1)
+                .durationMinutes(0)
+                .build();
+
+        Appointment savedAppointment = appointmentRepository.save(appointment);
+        appointmentRepository.deleteById(savedAppointment.getId());
+
+        //when
+        Optional<Appointment> appointmentOptional = appointmentRepository.findByCode(savedAppointment.getCode());
+
+        //then
+        assertThat(appointmentOptional).isEmpty();
     }
 }

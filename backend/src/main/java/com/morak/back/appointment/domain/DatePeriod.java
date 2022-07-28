@@ -38,7 +38,7 @@ public class DatePeriod {
     }
 
     public void validateAvailableDateRange(LocalDate startDate, LocalDate endDate) {
-        if (this.startDate.isBefore(startDate) || this.endDate.isAfter(endDate)) {
+        if (startDate.isBefore(this.startDate) || endDate.isAfter(this.endDate)) {
             throw new InvalidRequestException("약속잡기 가능 시간은 지정한 날짜 이내여야 합니다.");
         }
     }

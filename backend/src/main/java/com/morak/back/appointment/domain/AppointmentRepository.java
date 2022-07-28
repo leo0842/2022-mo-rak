@@ -11,4 +11,6 @@ public interface AppointmentRepository extends Repository<Appointment, Long> {
     Optional<Appointment> findByCode(String code);
 
     List<Appointment> findAllByTeamId(Long teamId);
+
+    void deleteById(Long id);
 }

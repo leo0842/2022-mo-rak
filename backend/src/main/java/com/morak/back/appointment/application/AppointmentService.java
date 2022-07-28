@@ -9,6 +9,7 @@ import com.morak.back.appointment.ui.dto.AppointmentAllResponse;
 import com.morak.back.appointment.ui.dto.AppointmentCreateRequest;
 import com.morak.back.appointment.ui.dto.AppointmentResponse;
 import com.morak.back.appointment.ui.dto.AvailableTimeRequest;
+import com.morak.back.appointment.ui.dto.RecommendationResponse;
 import com.morak.back.auth.domain.Member;
 import com.morak.back.auth.domain.MemberRepository;
 import com.morak.back.auth.exception.MemberNotFoundException;
@@ -35,7 +36,7 @@ public class AppointmentService {
     private final MemberRepository memberRepository;
     private final TeamRepository teamRepository;
     private final TeamMemberRepository teamMemberRepository;
-    
+
     public String createAppointment(String teamCode, Long memberId, AppointmentCreateRequest request) {
         Member member = memberRepository.findById(memberId).orElseThrow(() -> new MemberNotFoundException(memberId));
         Team team = teamRepository.findByCode(teamCode).orElseThrow(() -> new TeamNotFoundException(teamCode));
@@ -86,6 +87,28 @@ public class AppointmentService {
         saveAllAvailableTimes(availableTimes);
     }
 
+    public void closeAppointment(String teamCode, Long memberId, String appointmentCode) {
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new MemberNotFoundException(memberId));
+        Long teamId = teamRepository.findIdByCode(teamCode).orElseThrow(() -> new TeamNotFoundException(teamCode));
+        validateMemberInTeam(teamId, memberId);
+
+        Appointment appointment = appointmentRepository.findByCode(appointmentCode)
+                .orElseThrow(() -> new AppointmentNotFoundException(appointmentCode));
+        appointment.close(member);
+    }
+
+    public void deleteAppointment(String teamCode, Long memberId, String appointmentCode) {
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new MemberNotFoundException(memberId));
+        Long teamId = teamRepository.findIdByCode(teamCode).orElseThrow(() -> new TeamNotFoundException(teamCode));
+        validateMemberInTeam(teamId, memberId);
+
+        Appointment appointment = appointmentRepository.findByCode(appointmentCode)
+                .orElseThrow(() -> new AppointmentNotFoundException(appointmentCode));
+        appointment.validateHost(member);
+
+        appointmentRepository.deleteById(appointment.getId());
+    }
+
     private void validateMemberInTeam(Long teamId, Long memberId) {
         if (!teamMemberRepository.existsByTeamIdAndMemberId(teamId, memberId)) {
             throw new MismatchedTeamException(teamId, memberId);
@@ -105,5 +128,15 @@ public class AppointmentService {
         } catch (DataIntegrityViolationException e) {
             throw new InvalidRequestException("동일한 약속잡기 가능 시간을 선택할 수 없습니다.");
         }
+    }
+
+    public List<RecommendationResponse> recommendAvailableTimes(String teamCode, Long memberId,
+                                                                String appointmentCode) {
+        Long teamId = teamRepository.findIdByCode(teamCode).orElseThrow(() -> new TeamNotFoundException(teamCode));
+        validateMemberInTeam(teamId, memberId);
+
+        Appointment appointment = appointmentRepository.findByCode(appointmentCode)
+                .orElseThrow(() -> new AppointmentNotFoundException(appointmentCode));
+        return null;
     }
 }

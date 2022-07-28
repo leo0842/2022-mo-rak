@@ -34,6 +34,11 @@ public class AppointmentFixture {
             LocalDateTime.of(LocalDate.now().plusDays(1), LocalTime.of(17, 30))
     );
 
+    public static AvailableTimeRequest 모락_회식_첫째날_5시반부터_6시_선택_요청_데이터 = new AvailableTimeRequest(
+            LocalDateTime.of(LocalDate.now().plusDays(1), LocalTime.of(17, 30)),
+            LocalDateTime.of(LocalDate.now().plusDays(1), LocalTime.of(18, 0))
+    );
+
     public static AppointmentCreateRequest 모락_스터디_약속잡기_요청_데이터 = new AppointmentCreateRequest(
             "스터디 회의 시간",
             "스터디 진행과 관련된 회의입니다.",

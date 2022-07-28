@@ -1,7 +1,6 @@
 package com.morak.back.appointment.domain;
 
 import static com.morak.back.appointment.domain.Appointment.builder;
-import static java.time.LocalDate.now;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.morak.back.auth.domain.Member;
@@ -22,8 +21,8 @@ class AvailableTimeTest {
                 .team(new Team())
                 .title("스터디 회의 날짜 정하기")
                 .description("필참!!")
-                .startDate(now().plusDays(1))
-                .endDate(now().plusDays(5))
+                .startDate(LocalDate.now().plusDays(1))
+                .endDate(LocalDate.now().plusDays(5))
                 .startTime(LocalTime.of(14, 0))
                 .endTime(LocalTime.of(20, 0))
                 .durationHours(1)

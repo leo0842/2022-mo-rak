@@ -65,6 +65,7 @@ public class AppointmentController {
     public ResponseEntity<List<RecommendationResponse>> recommendAppointments(@PathVariable String groupCode,
                                                                               @Auth Long memberId,
                                                                               @PathVariable String appointmentCode) {
+        List<RecommendationResponse> recommendationResponses = appointmentService.recommendAvailableTimes(groupCode, memberId, appointmentCode);
         RecommendationResponse recommendationResponse1 = new RecommendationResponse(
                 1,
                 LocalDateTime.of(2022, 8, 6, 16, 0),
@@ -92,6 +93,7 @@ public class AppointmentController {
     public ResponseEntity<Void> closeAppointment(@PathVariable String groupCode,
                                                  @Auth Long memberId,
                                                  @PathVariable String appointmentCode) {
+        appointmentService.closeAppointment(groupCode, memberId, appointmentCode);
         return ResponseEntity.ok().build();
     }
 
@@ -99,6 +101,7 @@ public class AppointmentController {
     public ResponseEntity<Void> deleteAppointment(@PathVariable String groupCode,
                                                   @Auth Long memberId,
                                                   @PathVariable String appointmentCode) {
+        appointmentService.deleteAppointment(groupCode, memberId, appointmentCode);
         return ResponseEntity.noContent().build();
     }
 }
