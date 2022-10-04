@@ -16,19 +16,20 @@ public class RecommendationCell implements Comparable<RecommendationCell> {
 
     private static final int INITIAL_SCORE = 0;
 
-    private final DateTimePeriod dateTimePeriod;
+//    private final DateTimePeriod dateTimePeriod;
     private final Map<Member, Integer> memberScores;
 
     public static RecommendationCell of(LocalDateTime startDateTime, DurationMinutes durationMinutes,
                                         List<Member> members) {
-        Integer minuteUnit = durationMinutes.getDurationMinutes();
-        LocalDateTime endDateTime = startDateTime.plusMinutes(minuteUnit);
-        DateTimePeriod dateTimePeriod = DateTimePeriod.of(startDateTime, endDateTime, minuteUnit);
-        return new RecommendationCell(
-                dateTimePeriod,
-                members.stream()
-                        .collect(Collectors.toMap(Function.identity(), member -> INITIAL_SCORE))
-        );
+        return null;
+//        Integer minuteUnit = durationMinutes.getDurationMinutes();
+//        LocalDateTime endDateTime = startDateTime.plusMinutes(minuteUnit);
+//        DateTimePeriod dateTimePeriod = DateTimePeriod.of(startDateTime, endDateTime, minuteUnit);
+//        return new RecommendationCell(
+//                dateTimePeriod,
+//                members.stream()
+//                        .collect(Collectors.toMap(Function.identity(), member -> INITIAL_SCORE))
+//        );
     }
 
     public void calculate(List<AvailableTime> availableTimes) {
@@ -38,9 +39,9 @@ public class RecommendationCell implements Comparable<RecommendationCell> {
     }
 
     private void increaseScoreIfAvailableTimeRange(AvailableTime availableTime) {
-        if (this.dateTimePeriod.isAvailableRange(availableTime.getDateTimePeriod())) {
-            this.memberScores.computeIfPresent(availableTime.getMember(), (member, score) -> score + 1);
-        }
+//        if (this.dateTimePeriod.isAvailableRange(availableTime.getDateTimePeriod())) {
+//            this.memberScores.computeIfPresent(availableTime.getMember(), (member, score) -> score + 1);
+//        }
     }
 
     public int sumScore() {
@@ -55,11 +56,16 @@ public class RecommendationCell implements Comparable<RecommendationCell> {
     }
 
     public long getDurationUnitCount() {
-        return this.dateTimePeriod.countDurationUnit();
+        return 0;
+//        return this.dateTimePeriod.countDurationUnit();
     }
 
     @Override
     public int compareTo(RecommendationCell o) {
         return Integer.compare(o.sumScore(), this.sumScore());
+    }
+
+    public Appointment getDateTimePeriod() {
+        return null;
     }
 }

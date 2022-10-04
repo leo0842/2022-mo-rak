@@ -35,7 +35,6 @@ class AvailableTimeTest {
         // when & then
         assertThatThrownBy(() -> AvailableTime.builder()
                 .id(1L)
-                .appointment(appointment)
                 .member(new Member())
                 .startDateTime(LocalDateTime.of(LocalDate.now().minusDays(1), LocalTime.of(14, 0)))
                 .endDateTime(LocalDateTime.of(LocalDate.now().minusDays(1), LocalTime.of(14, 30)))
@@ -66,7 +65,6 @@ class AvailableTimeTest {
         // when & then
         assertThatThrownBy(() -> AvailableTime.builder()
                 .id(1L)
-                .appointment(appointment)
                 .member(new Member())
                 .startDateTime(LocalDateTime.of(LocalDate.now().plusDays(1), LocalTime.of(12, 0)))
                 .endDateTime(LocalDateTime.of(LocalDate.now().plusDays(1), LocalTime.of(12, 30)))

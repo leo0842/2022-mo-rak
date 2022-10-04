@@ -59,7 +59,9 @@ public enum CustomErrorCode {
     NOTIFICATION_SCHEDULING_FAILURE_ERROR("4402", "스케줄링 실행 중 실패했습니다."),
 
     MORAK_ERROR("9901", "처리하지 못한 예외입니다."),
-    RUNTIME_ERROR("9902", "예상치 못한 예외입니다.");
+    RUNTIME_ERROR("9902", "예상치 못한 예외입니다."),
+
+    TEMP_ERROR("0123", "임시 에러입니다.");
 
     private final String number;
     private final String information;

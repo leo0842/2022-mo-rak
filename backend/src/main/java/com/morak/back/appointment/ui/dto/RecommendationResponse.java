@@ -30,13 +30,14 @@ public class RecommendationResponse {
     private List<MemberResponse> unavailableMembers;
 
     public static RecommendationResponse from(RankRecommendation rankRecommendation) {
-        return new RecommendationResponse(
-                rankRecommendation.getRank(),
-                rankRecommendation.getDateTimePeriod().getStartDateTime(),
-                rankRecommendation.getDateTimePeriod().getEndDateTime(),
-                toMemberResponses(rankRecommendation.getAvailableMembers()),
-                toMemberResponses(rankRecommendation.getUnavailableMembers())
-        );
+        return null;
+//        return new RecommendationResponse(
+//                rankRecommendation.getRank(),
+//                rankRecommendation.getDateTimePeriod().getStartDateTime(),
+//                rankRecommendation.getDateTimePeriod().getEndDateTime(),
+//                toMemberResponses(rankRecommendation.getAvailableMembers()),
+//                toMemberResponses(rankRecommendation.getUnavailableMembers())
+//        );
     }
 
     private static List<MemberResponse> toMemberResponses(List<Member> members) {

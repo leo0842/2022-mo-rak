@@ -30,7 +30,6 @@ public class AvailableTimeRequest {
     public AvailableTime toAvailableTime(Member member, Appointment appointment) {
         return AvailableTime.builder()
                 .member(member)
-                .appointment(appointment)
                 .startDateTime(this.start)
                 .endDateTime(this.end)
                 .build();

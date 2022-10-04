@@ -16,22 +16,23 @@ public class RankRecommendation {
 
     // TODO: 2022/08/03  dateTimePeriod, availableMembers, unavailableMembers 묶기?!
     private final int rank;
-    private final DateTimePeriod dateTimePeriod;
+//    private final DateTimePeriod dateTimePeriod;
     private final List<Member> availableMembers;
     private final List<Member> unavailableMembers;
 
     public static RankRecommendation from(int rank, RecommendationCell recommendationCell) {
-        Map<Member, Integer> memberScores = recommendationCell.getMemberScores();
-        long durationUnitCount = recommendationCell.getDurationUnitCount();
-        List<Member> availableMembers = getAvailableMembers(memberScores, durationUnitCount);
-        List<Member> unavailableMembers = getUnavailableMembers(memberScores, availableMembers);
-
-        return new RankRecommendation(
-                rank,
-                recommendationCell.getDateTimePeriod(),
-                availableMembers,
-                unavailableMembers
-        );
+        return null;
+//        Map<Member, Integer> memberScores = recommendationCell.getMemberScores();
+//        long durationUnitCount = recommendationCell.getDurationUnitCount();
+//        List<Member> availableMembers = getAvailableMembers(memberScores, durationUnitCount);
+//        List<Member> unavailableMembers = getUnavailableMembers(memberScores, availableMembers);
+//
+//        return new RankRecommendation(
+//                rank,
+//                recommendationCell.getDateTimePeriod(),
+//                availableMembers,
+//                unavailableMembers
+//        );
     }
 
     private static List<Member> getAvailableMembers(Map<Member, Integer> memberScores, long durationUnitCount) {

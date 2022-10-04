@@ -11,6 +11,8 @@ import com.morak.back.appointment.exception.AppointmentDomainLogicException;
 import com.morak.back.auth.domain.Member;
 import com.morak.back.core.domain.Code;
 import com.morak.back.core.exception.CustomErrorCode;
+import com.morak.back.core.exception.DomainLogicException;
+import com.morak.back.newdomain.MenuStatus;
 import com.morak.back.team.domain.Team;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -172,7 +174,7 @@ class AppointmentTest {
         appointment.close(eden);
 
         // then
-        assertThat(appointment.getStatus()).isEqualTo(CLOSED);
+        assertThat(appointment.getStatus()).isEqualTo(MenuStatus.CLOSED);
     }
 
     @Test
@@ -226,8 +228,7 @@ class AppointmentTest {
         Appointment appointment = DEFAULT_BUILDER.build();
         DatePeriod datePeriod = DatePeriod.of(
                 LocalDate.now().plusDays(1),
-                LocalDate.now().plusDays(3),
-                LocalTime.of(16, 0)
+                LocalDate.now().plusDays(3)
         );
 
         // when
@@ -243,8 +244,7 @@ class AppointmentTest {
         Appointment appointment = DEFAULT_BUILDER.build();
         DatePeriod datePeriod = DatePeriod.of(
                 LocalDate.now().plusDays(5),
-                LocalDate.now().plusDays(6),
-                LocalTime.of(16, 0)
+                LocalDate.now().plusDays(6)
         );
 
         // when

@@ -2,8 +2,6 @@ package com.morak.back.appointment.application;
 
 import com.morak.back.appointment.domain.Appointment;
 import com.morak.back.appointment.domain.AppointmentRepository;
-import com.morak.back.appointment.domain.AvailableTime;
-import com.morak.back.appointment.domain.AvailableTimeRepository;
 import com.morak.back.appointment.domain.RankRecommendation;
 import com.morak.back.appointment.domain.RecommendationCells;
 import com.morak.back.appointment.exception.AppointmentAuthorizationException;
@@ -49,12 +47,12 @@ public class AppointmentService {
     private static final CodeGenerator CODE_GENERATOR = new RandomCodeGenerator();
 
     private final AppointmentRepository appointmentRepository;
-    private final AvailableTimeRepository availableTimeRepository;
     private final MemberRepository memberRepository;
     private final TeamRepository teamRepository;
     private final TeamMemberRepository teamMemberRepository;
 
     private final NotificationService notificationService;
+//    private final Time currentTime;
 
     public String createAppointment(String teamCode, Long memberId, AppointmentCreateRequest request) {
         Member member = memberRepository.findById(memberId)
@@ -77,7 +75,7 @@ public class AppointmentService {
                 .orElseThrow(() -> TeamNotFoundException.ofTeam(CustomErrorCode.TEAM_NOT_FOUND_ERROR, teamCode));
         validateMemberInTeam(team, member);
 
-        return appointmentRepository.findAllByTeam(team).stream()
+        return appointmentRepository.findAllByMenuTeam(team).stream()
                 .map(AppointmentAllResponse::from)
                 .sorted()
                 .collect(Collectors.toList());
@@ -123,15 +121,20 @@ public class AppointmentService {
                         CustomErrorCode.APPOINTMENT_NOT_FOUND_ERROR, appointmentCode
                 ));
 
-        validateDuplicatedRequest(requests);
         validateAppointmentInTeam(team, appointment);
+        validateDuplicatedRequest(requests);
         validateAppointmentStatus(appointment);
-
-        availableTimeRepository.deleteAllByMemberAndAppointment(member, appointment);
-        List<AvailableTime> availableTimes = requests.stream()
-                .map(request -> request.toAvailableTime(member, appointment))
-                .collect(Collectors.toList());
-        availableTimeRepository.saveAll(availableTimes);
+        appointment.selectAvailableTime(
+                requests.stream()
+                        .map(AvailableTimeRequest::getStart)
+                        .collect(Collectors.toList()),
+                member
+        );
+//        availableTimeRepository.deleteAllByMemberAndAppointment(member, appointment);
+//        List<AvailableTime> availableTimes = requests.stream()
+//                .map(request -> request.toAvailableTime(member, appointment))
+//                .collect(Collectors.toList());
+//        availableTimeRepository.saveAll(availableTimes);
     }
 
     private void validateAppointmentStatus(Appointment appointment) {
@@ -172,10 +175,10 @@ public class AppointmentService {
                 .map(TeamMember::getMember)
                 .collect(Collectors.toList());
 
-        RecommendationCells recommendationCells = RecommendationCells.of(appointment, members);
+        RecommendationCells recommendationCells = RecommendationCells.of(appointment, members); // 1900
 
-        List<AvailableTime> availableTimes = availableTimeRepository.findAllByAppointment(appointment);
-        List<RankRecommendation> rankRecommendations = recommendationCells.recommend(availableTimes);
+//        List<AvailableTime> availableTimes = availableTimeRepository.findAllByAppointment(appointment);
+        List<RankRecommendation> rankRecommendations = recommendationCells.recommend(null);
 
         return rankRecommendations.stream()
                 .map(RecommendationResponse::from)
@@ -212,7 +215,7 @@ public class AppointmentService {
                 ));
         validateHost(member, appointment);
         validateAppointmentInTeam(team, appointment);
-        availableTimeRepository.deleteAllByAppointment(appointment);
+//        availableTimeRepository.deleteAllByAppointment(appointment);
         appointmentRepository.delete(appointment);
     }
 

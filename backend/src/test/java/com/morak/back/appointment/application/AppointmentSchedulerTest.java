@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.morak.back.appointment.domain.Appointment;
 import com.morak.back.appointment.domain.AppointmentRepository;
 import com.morak.back.appointment.domain.AppointmentStatus;
-import com.morak.back.appointment.domain.AvailableTimeRepository;
 import com.morak.back.auth.domain.MemberRepository;
 import com.morak.back.core.application.NotificationService;
 import com.morak.back.core.domain.slack.FakeApiReceiver;
@@ -28,7 +27,6 @@ class AppointmentSchedulerTest {
 
     @Autowired
     public AppointmentSchedulerTest(AppointmentRepository appointmentRepository,
-                                    AvailableTimeRepository availableTimeRepository,
                                     MemberRepository memberRepository, TeamRepository teamRepository,
                                     TeamMemberRepository teamMemberRepository,
                                     SlackWebhookRepository slackWebhookRepository) {
@@ -46,7 +44,6 @@ class AppointmentSchedulerTest {
         this.appointmentScheduler = new AppointmentScheduler(
                 new AppointmentService(
                         appointmentRepository,
-                        availableTimeRepository,
                         memberRepository,
                         teamRepository,
                         teamMemberRepository,

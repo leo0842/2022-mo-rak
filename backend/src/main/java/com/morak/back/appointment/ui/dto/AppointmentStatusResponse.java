@@ -1,6 +1,7 @@
 package com.morak.back.appointment.ui.dto;
 
 import com.morak.back.appointment.domain.AppointmentStatus;
+import com.morak.back.newdomain.MenuStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,5 +11,5 @@ import lombok.NoArgsConstructor;
 @Getter
 public class AppointmentStatusResponse {
 
-    private AppointmentStatus status;
+    private MenuStatus status;
 }

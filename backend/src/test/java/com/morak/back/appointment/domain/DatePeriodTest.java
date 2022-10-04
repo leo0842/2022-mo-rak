@@ -18,8 +18,7 @@ class DatePeriodTest {
         // when & then
         assertThatThrownBy(() -> DatePeriod.of(
                 LocalDate.now().minusDays(2),
-                LocalDate.now().minusDays(1),
-                LocalTime.of(20, 0)
+                LocalDate.now().minusDays(1)
         )).isInstanceOf(AppointmentDomainLogicException.class)
                 .extracting("code")
                 .isEqualTo(CustomErrorCode.APPOINTMENT_PAST_DATE_CREATE_ERROR);
@@ -30,8 +29,7 @@ class DatePeriodTest {
         // when & then
         assertThatThrownBy(() -> DatePeriod.of(
                 LocalDate.now().plusDays(2),
-                LocalDate.now().plusDays(1),
-                LocalTime.of(0, 0)
+                LocalDate.now().plusDays(1)
         )).isInstanceOf(AppointmentDomainLogicException.class)
                 .extracting("code")
                 .isEqualTo(CustomErrorCode.APPOINTMENT_DATE_REVERSE_CHRONOLOGY_ERROR);
@@ -44,8 +42,8 @@ class DatePeriodTest {
         assertThatNoException()
                 .isThrownBy(() -> DatePeriod.of(
                         LocalDate.now().plusDays(2),
-                        LocalDate.now().plusDays(2),
-                        LocalTime.of(20, 0)));
+                        LocalDate.now().plusDays(2)
+                ));
     }
 
     @Test
@@ -54,7 +52,7 @@ class DatePeriodTest {
         LocalTime 자정 = LocalTime.of(0, 0);
 
         // when
-        DatePeriod datePeriod = DatePeriod.of(LocalDate.now().plusDays(1), LocalDate.now().plusDays(2), 자정);
+        DatePeriod datePeriod = DatePeriod.of(LocalDate.now().plusDays(1), LocalDate.now().plusDays(2));
 
         // then
         assertThat(datePeriod.getEndDate()).isEqualTo(LocalDate.now().plusDays(3));
@@ -66,7 +64,7 @@ class DatePeriodTest {
         LocalTime 자정 = LocalTime.of(0, 0);
 
         // when
-        DatePeriod datePeriod = DatePeriod.of(LocalDate.now().plusDays(1), LocalDate.now().plusDays(1), 자정);
+        DatePeriod datePeriod = DatePeriod.of(LocalDate.now().plusDays(1), LocalDate.now().plusDays(1));
 
         // then
         Assertions.assertAll(
