@@ -1,4 +1,4 @@
-package com.morak.back.newdomain;
+package com.morak.back.appointment.domain;
 
 import com.morak.back.core.exception.CustomErrorCode;
 import com.morak.back.core.exception.DomainLogicException;

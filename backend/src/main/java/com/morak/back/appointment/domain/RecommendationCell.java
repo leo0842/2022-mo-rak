@@ -1,9 +1,10 @@
 package com.morak.back.appointment.domain;
 
 import com.morak.back.auth.domain.Member;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.AccessLevel;
@@ -16,32 +17,27 @@ public class RecommendationCell implements Comparable<RecommendationCell> {
 
     private static final int INITIAL_SCORE = 0;
 
-//    private final DateTimePeriod dateTimePeriod;
+    private final AppointmentTime appointmentTime;
     private final Map<Member, Integer> memberScores;
 
-    public static RecommendationCell of(LocalDateTime startDateTime, DurationMinutes durationMinutes,
-                                        List<Member> members) {
-        return null;
-//        Integer minuteUnit = durationMinutes.getDurationMinutes();
-//        LocalDateTime endDateTime = startDateTime.plusMinutes(minuteUnit);
-//        DateTimePeriod dateTimePeriod = DateTimePeriod.of(startDateTime, endDateTime, minuteUnit);
-//        return new RecommendationCell(
-//                dateTimePeriod,
-//                members.stream()
-//                        .collect(Collectors.toMap(Function.identity(), member -> INITIAL_SCORE))
-//        );
+    public static RecommendationCell of(AppointmentTime appointmentTime, List<Member> members) {
+        return new RecommendationCell(
+                appointmentTime,
+                members.stream()
+                        .collect(Collectors.toMap(Function.identity(), member -> INITIAL_SCORE))
+        );
     }
 
-    public void calculate(List<AvailableTime> availableTimes) {
+    public void calculate(Set<AvailableTime> availableTimes) {
         for (AvailableTime availableTime : availableTimes) {
             increaseScoreIfAvailableTimeRange(availableTime);
         }
     }
 
     private void increaseScoreIfAvailableTimeRange(AvailableTime availableTime) {
-//        if (this.dateTimePeriod.isAvailableRange(availableTime.getDateTimePeriod())) {
-//            this.memberScores.computeIfPresent(availableTime.getMember(), (member, score) -> score + 1);
-//        }
+        if (this.appointmentTime.contains(availableTime)) {
+            this.memberScores.computeIfPresent(availableTime.getMember(), (member, score) -> score + 1);
+        }
     }
 
     public int sumScore() {
@@ -55,17 +51,25 @@ public class RecommendationCell implements Comparable<RecommendationCell> {
         return sumScore() != 0;
     }
 
-    public long getDurationUnitCount() {
-        return 0;
-//        return this.dateTimePeriod.countDurationUnit();
-    }
-
     @Override
     public int compareTo(RecommendationCell o) {
         return Integer.compare(o.sumScore(), this.sumScore());
     }
 
-    public Appointment getDateTimePeriod() {
-        return null;
+    public Set<Member> getAvailableMembers() {
+        int unitCount = appointmentTime.getUnitCount();
+
+        return memberScores.entrySet().stream()
+                .filter(entry -> entry.getValue() == unitCount)
+                .map(Entry::getKey)
+                .collect(Collectors.toSet());
+    }
+
+    public Set<Member> getUnavailableMembers() {
+        Set<Member> availableMembers = getAvailableMembers();
+
+        return memberScores.keySet().stream()
+                .filter(member -> !availableMembers.contains(member))
+                .collect(Collectors.toSet());
     }
 }

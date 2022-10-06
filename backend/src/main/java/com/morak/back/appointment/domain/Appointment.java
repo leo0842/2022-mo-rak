@@ -5,22 +5,21 @@ import com.morak.back.auth.domain.Member;
 import com.morak.back.core.domain.Code;
 import com.morak.back.core.exception.CustomErrorCode;
 import com.morak.back.core.exception.DomainLogicException;
-import com.morak.back.newdomain.Menu;
-import com.morak.back.newdomain.MenuStatus;
 import com.morak.back.poll.domain.BaseEntity;
 import com.morak.back.team.domain.Team;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import javax.persistence.CollectionTable;
 import javax.persistence.ElementCollection;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
-import javax.validation.Valid;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -38,15 +37,12 @@ public class Appointment extends BaseEntity {
     private Menu menu;
 
     @Embedded
-    @Valid
     private DatePeriod datePeriod;
 
     @Embedded
-    @Valid
     private TimePeriod timePeriod;
 
     @Embedded
-    @Valid
     private DurationMinutes durationMinutes;
 
     @ElementCollection
@@ -54,7 +50,7 @@ public class Appointment extends BaseEntity {
             name = "available_times",
             joinColumns = @JoinColumn(name = "appointment_id")
     )
-    private List<AvailableTime> availableTimes = new ArrayList<>();
+    private Set<AvailableTime> availableTimes = new HashSet<>();
 
     @Formula("(SELECT COUNT(DISTINCT aat.member_id) FROM appointment_available_time as aat WHERE aat.appointment_id = id)")
     private Integer count;
@@ -65,16 +61,16 @@ public class Appointment extends BaseEntity {
                         Integer durationMinutes, Code code, LocalDateTime closedAt) {
         super(id);
         LocalDateTime now = LocalDateTime.now(); // todo : check this
-        this.menu = new Menu(team, host, code, title, description, MenuStatus.OPEN, closedAt, now);
-
-        this.datePeriod = DatePeriod.of(startDate, endDate);
-        this.timePeriod = TimePeriod.of(startTime, endTime);
+        this.menu = new Menu(team, host, code, title, description, MenuStatus.OPEN,
+                new AppointmentClosedAt(closedAt, now, endDate, endTime));
+        this.datePeriod = new DatePeriod(startDate, endDate, now.toLocalDate());
+        this.timePeriod = new TimePeriod(startTime, endTime);
         this.durationMinutes = DurationMinutes.of(durationHours, durationMinutes);
         validateDurationAndPeriod(this.timePeriod, this.durationMinutes);
     }
 
     private void validateDurationAndPeriod(TimePeriod timePeriod, DurationMinutes durationMinutes) {
-        if (!timePeriod.isLongerThan(durationMinutes)) {
+        if (durationMinutes.isLongerThan(timePeriod.getDuration())) {
             throw new DomainLogicException(
                     CustomErrorCode.TEMP_ERROR,
                     "진행 시간" + durationMinutes + "은 약속 시간보다 짧아야 합니다"
@@ -82,18 +78,20 @@ public class Appointment extends BaseEntity {
         }
     }
 
-    public void selectAvailableTime(List<LocalDateTime> localDateTimes, Member member) {
-        List<AvailableTime> availableTimes = localDateTimes.stream()
-                .filter(this::isDateTimeBetween)
+    public void selectAvailableTime(Set<LocalDateTime> localDateTimes, Member member, LocalDateTime now) {
+        Set<AvailableTime> availableTimes = localDateTimes.stream()
+                .filter(dateTime -> isDateTimeBetween(dateTime, now))
                 .map(time -> AvailableTime.builder().member(member).startDateTime(time).build())
-                .collect(Collectors.toList());
+                .collect(Collectors.toSet());
 
         this.availableTimes.removeIf(availableTime -> availableTime.getMember().equals(member));
         this.availableTimes.addAll(availableTimes);
     }
 
-    private boolean isDateTimeBetween(LocalDateTime dateTime) {
-        return this.datePeriod.isBetween(dateTime) && this.timePeriod.isBetween(dateTime);
+    private boolean isDateTimeBetween(LocalDateTime dateTime, LocalDateTime now) {
+        return this.datePeriod.isBetween(dateTime.toLocalDate())
+                && this.timePeriod.isBetween(dateTime.toLocalTime())
+                && now.isBefore(dateTime);
     }
 
     public Integer parseHours() {
@@ -102,18 +100,6 @@ public class Appointment extends BaseEntity {
 
     public Integer parseMinutes() {
         return this.durationMinutes.parseMinutes();
-    }
-
-    /*
-    DatePeriod를 직접 사용하면 getEndDate()의 minusDay 를 호출할 수 없습니다.
-     */
-    public boolean isAvailableDateRange(DatePeriod otherDatePeriod) {
-        return DatePeriod.of(getStartDate(), getEndDate()).isAvailableRange(otherDatePeriod);
-    }
-
-    public boolean isAvailableTimeRange(TimePeriod timePeriod) {
-        return true;
-//        return this.timePeriod.isAvailableRange(timePeriod);
     }
 
     public void close(Member member) {
@@ -143,11 +129,11 @@ public class Appointment extends BaseEntity {
     }
 
     public LocalDateTime getStartDateTime() {
-        return LocalDateTime.of(datePeriod.getStartDate(), timePeriod.getStartTime().getLocalTime());
+        return LocalDateTime.of(datePeriod.getStartDate(), timePeriod.getStartTime().getTime());
     }
 
     public LocalDateTime getEndDateTime() {
-        return LocalDateTime.of(datePeriod.getEndDate(), timePeriod.getEndTime().getLocalTime());
+        return LocalDateTime.of(datePeriod.getEndDate(), timePeriod.getEndTime().getTime());
     }
 
     public LocalDate getStartDate() {
@@ -163,11 +149,11 @@ public class Appointment extends BaseEntity {
     }
 
     public LocalTime getStartTime() {
-        return this.timePeriod.getStartTime().getLocalTime();
+        return this.timePeriod.getStartTime().getTime();
     }
 
     public LocalTime getEndTime() {
-        return this.timePeriod.getEndTime().getLocalTime();
+        return this.timePeriod.getEndTime().getTime();
     }
 
     public String getCode() {
@@ -205,5 +191,24 @@ public class Appointment extends BaseEntity {
 
     public Member getHost() {
         return menu.getHost();
+    }
+
+    public List<AppointmentTime> getAppointmentTimes() {
+        LocalTime startTime = timePeriod.getStartTime().getTime();
+        LocalTime endTime = timePeriod.getEndTime().getTime();
+        long duration = (long) durationMinutes.getDurationMinutes() - MINUTES_UNIT;
+
+        LocalDate date = datePeriod.getStartDate();
+        List<AppointmentTime> times = new ArrayList<>();
+        while (!date.isAfter(datePeriod.getEndDate())) {
+            while (!startTime.plusMinutes(duration).isAfter(endTime)) {
+                times.add(new AppointmentTime(LocalDateTime.of(date, startTime), durationMinutes.getDurationMinutes()));
+                startTime = startTime.plusMinutes(MINUTES_UNIT);
+            }
+            startTime = timePeriod.getStartTime().getTime();
+            date = date.plusDays(1L);
+        }
+
+        return times;
     }
 }

@@ -1,4 +1,4 @@
-package com.morak.back.newdomain;
+package com.morak.back.appointment.domain;
 
 import com.morak.back.auth.domain.Member;
 import com.morak.back.core.domain.Code;
@@ -40,14 +40,14 @@ public class Menu {
     private ClosedAt closedAt;
 
     public Menu(Team team, Member host, Code code, String title, String description, MenuStatus status,
-                LocalDateTime closedAt, LocalDateTime now) {
+                ClosedAt closedAt) {
         this.team = team;
         this.host = host;
         this.code = code;
         this.title = new Title(title);
         this.description = new Description(description);
         this.status = status;
-        this.closedAt = new ClosedAt(closedAt, now);
+        this.closedAt = closedAt;
     }
 
     public void close() {

@@ -2,6 +2,7 @@ package com.morak.back.appointment.application;
 
 import com.morak.back.appointment.domain.Appointment;
 import com.morak.back.appointment.domain.AppointmentRepository;
+import com.morak.back.appointment.domain.AvailableTime;
 import com.morak.back.appointment.domain.RankRecommendation;
 import com.morak.back.appointment.domain.RecommendationCells;
 import com.morak.back.appointment.exception.AppointmentAuthorizationException;
@@ -34,6 +35,7 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -123,18 +125,14 @@ public class AppointmentService {
 
         validateAppointmentInTeam(team, appointment);
         validateDuplicatedRequest(requests);
-        validateAppointmentStatus(appointment);
+        validateAppointmentStatus(appointment);// TODO: 2022/10/06 fix this - 도메인 안으로 넣기
         appointment.selectAvailableTime(
                 requests.stream()
                         .map(AvailableTimeRequest::getStart)
-                        .collect(Collectors.toList()),
-                member
+                        .collect(Collectors.toSet()),
+                member,
+                LocalDateTime.now() // todo : injection
         );
-//        availableTimeRepository.deleteAllByMemberAndAppointment(member, appointment);
-//        List<AvailableTime> availableTimes = requests.stream()
-//                .map(request -> request.toAvailableTime(member, appointment))
-//                .collect(Collectors.toList());
-//        availableTimeRepository.saveAll(availableTimes);
     }
 
     private void validateAppointmentStatus(Appointment appointment) {
@@ -175,10 +173,11 @@ public class AppointmentService {
                 .map(TeamMember::getMember)
                 .collect(Collectors.toList());
 
-        RecommendationCells recommendationCells = RecommendationCells.of(appointment, members); // 1900
+        RecommendationCells recommendationCells = RecommendationCells.of(appointment, members);
 
-//        List<AvailableTime> availableTimes = availableTimeRepository.findAllByAppointment(appointment);
-        List<RankRecommendation> rankRecommendations = recommendationCells.recommend(null);
+        Set<AvailableTime> availableTimes = appointment.getAvailableTimes();
+
+        List<RankRecommendation> rankRecommendations = recommendationCells.recommend(availableTimes);
 
         return rankRecommendations.stream()
                 .map(RecommendationResponse::from)

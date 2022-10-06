@@ -3,7 +3,6 @@ package com.morak.back.appointment.domain;
 import com.morak.back.appointment.exception.AppointmentDomainLogicException;
 import com.morak.back.core.exception.CustomErrorCode;
 import java.time.Duration;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import javax.persistence.AttributeOverride;
 import javax.persistence.AttributeOverrides;
@@ -23,29 +22,26 @@ public class TimePeriod {
     private static final int MINUTES_UNIT = 30;
 
     @AttributeOverrides(
-            @AttributeOverride(name = "localTime", column = @Column(name = "start_time"))
+            @AttributeOverride(name = "time", column = @Column(name = "start_time"))
     )
-    private AppointmentTime startTime;
+    private Time startTime;
 
     @AttributeOverrides(
-            @AttributeOverride(name = "localTime", column = @Column(name = "end_time"))
+            @AttributeOverride(name = "time", column = @Column(name = "end_time"))
     )
-    private AppointmentTime endTime;
+    private Time endTime;
 
-    private TimePeriod(AppointmentTime startTime, AppointmentTime endTime) {
+    private TimePeriod(Time startTime, Time endTime) {
         validateChronology(startTime, endTime);
         this.startTime = startTime;
         this.endTime = endTime;
     }
 
-    public static TimePeriod of(LocalTime startTime, LocalTime endTime) {
-        return new TimePeriod(
-                new AppointmentTime(startTime),
-                new AppointmentTime(endTime.minusMinutes(MINUTES_UNIT))
-        );
+    public TimePeriod(LocalTime startTime, LocalTime endTime) {
+        this(new Time(startTime), new Time(endTime.minusMinutes(MINUTES_UNIT)));
     }
 
-    private static void validateChronology(AppointmentTime startTime, AppointmentTime endTime) {
+    private static void validateChronology(Time startTime, Time endTime) {
         if (endTime.isBefore(startTime)) {
             throw new AppointmentDomainLogicException(
                     CustomErrorCode.APPOINTMENT_TIME_REVERSE_CHRONOLOGY_ERROR,
@@ -57,17 +53,16 @@ public class TimePeriod {
         }
     }
 
-    public boolean isLongerThan(DurationMinutes durationMinutes) {
-        Duration duration = startTime.getDuration(endTime).plusMinutes(MINUTES_UNIT);
-        return duration.toMinutes() >= durationMinutes.getDurationMinutes();
+    public Duration getDuration() {
+        return startTime.getDuration(endTime).plusMinutes(MINUTES_UNIT);
     }
 
     public boolean isAvailableRange(TimePeriod timePeriod) {
         throw new NotImplementedException();
     }
 
-    public boolean isBetween(LocalDateTime dateTime) {
-        LocalTime localTime = dateTime.toLocalTime();
-        return !startTime.isAfter(localTime) && !endTime.isBefore(localTime);
+    public boolean isBetween(LocalTime localTime) {
+        Time time = new Time(localTime);
+        return !startTime.isAfter(time) && !endTime.isBefore(time);
     }
 }
