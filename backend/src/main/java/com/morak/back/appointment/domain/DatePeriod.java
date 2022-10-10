@@ -18,8 +18,6 @@ import lombok.ToString;
 @NoArgsConstructor
 public class DatePeriod {
 
-    private static final long ONE_DAY = 1L;
-
     @Embedded
     @AttributeOverrides(
             @AttributeOverride(name = "date", column = @Column(name = "start_date"))

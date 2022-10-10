@@ -79,8 +79,6 @@ public class AppointmentDummySupport {
                                     .member(MEMBER_ID1)
                                     .startDateTime(
                                             LocalDateTime.of(LocalDate.now().plusDays(day), LocalTime.of(hour, 0)))
-                                    .endDateTime(
-                                            LocalDateTime.of(LocalDate.now().plusDays(day), LocalTime.of(hour, 30)))
                                     .build()
                     );
                 }

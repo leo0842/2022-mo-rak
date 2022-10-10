@@ -5,6 +5,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.morak.back.appointment.domain.Appointment;
 import com.morak.back.appointment.domain.AppointmentRepository;
 import com.morak.back.appointment.domain.AppointmentStatus;
+import com.morak.back.appointment.domain.MorakTime;
+import com.morak.back.appointment.domain.RealTime;
 import com.morak.back.auth.domain.MemberRepository;
 import com.morak.back.core.application.NotificationService;
 import com.morak.back.core.domain.slack.FakeApiReceiver;
@@ -17,8 +19,10 @@ import com.morak.back.team.domain.TeamRepository;
 import javax.persistence.EntityManager;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Import;
 
 @ServiceTest
+@Import(RealTime.class)
 class AppointmentSchedulerTest {
 
     private final AppointmentRepository appointmentRepository;
@@ -29,7 +33,8 @@ class AppointmentSchedulerTest {
     public AppointmentSchedulerTest(AppointmentRepository appointmentRepository,
                                     MemberRepository memberRepository, TeamRepository teamRepository,
                                     TeamMemberRepository teamMemberRepository,
-                                    SlackWebhookRepository slackWebhookRepository) {
+                                    SlackWebhookRepository slackWebhookRepository,
+                                    MorakTime fakeTime) {
         this.appointmentRepository = appointmentRepository;
         this.receiver = new FakeApiReceiver();
         SlackClient slackClient = new FakeSlackClient(receiver);
@@ -47,7 +52,8 @@ class AppointmentSchedulerTest {
                         memberRepository,
                         teamRepository,
                         teamMemberRepository,
-                        notificationService)
+                        notificationService,
+                        fakeTime)
         );
     }
 

@@ -143,8 +143,7 @@ public class AppointmentAcceptanceTest extends AcceptanceTest {
         String location = 약속잡기_생성을_요청한다(범위_16_20_약속잡기_요청_데이터).header("Location");
 
         AvailableTimeRequest availableTimeRequest = new AvailableTimeRequest(
-                LocalDateTime.of(LocalDate.now().plusDays(1), LocalTime.of(startHour, startMinute)),
-                LocalDateTime.of(LocalDate.now().plusDays(1), LocalTime.of(endHour, endMinute))
+                LocalDateTime.of(LocalDate.now().plusDays(1), LocalTime.of(startHour, startMinute))
         );
 
         // when
@@ -175,8 +174,7 @@ public class AppointmentAcceptanceTest extends AcceptanceTest {
         String location = 약속잡기_생성을_요청한다(범위_16_24_약속잡기_요청_데이터).header("Location");
 
         AvailableTimeRequest availableTimeRequest = new AvailableTimeRequest(
-                LocalDateTime.of(LocalDate.now().plusDays(startDate), LocalTime.of(startHour, startMinute)),
-                LocalDateTime.of(LocalDate.now().plusDays(endDate), LocalTime.of(endHour, endMinute))
+                LocalDateTime.of(LocalDate.now().plusDays(startDate), LocalTime.of(startHour, startMinute))
         );
 
         // when
@@ -199,8 +197,7 @@ public class AppointmentAcceptanceTest extends AcceptanceTest {
         String location = 약속잡기_생성을_요청한다(범위_16_24_약속잡기_요청_데이터).header("Location");
 
         AvailableTimeRequest availableTimeRequest = new AvailableTimeRequest(
-                LocalDateTime.of(LocalDate.now().plusDays(startDate), LocalTime.of(startHour, startMinute)),
-                LocalDateTime.of(LocalDate.now().plusDays(endDate), LocalTime.of(endHour, endMinute))
+                LocalDateTime.of(LocalDate.now().plusDays(startDate), LocalTime.of(startHour, startMinute))
         );
 
         // when
@@ -235,12 +232,10 @@ public class AppointmentAcceptanceTest extends AcceptanceTest {
                 Arguments.of(모락_회식_첫째날_5시부터_5시반_선택_요청_데이터),
                 Arguments.of(모락_회식_첫째날_11시_반부터_00시_선택_요청_데이터),
                 Arguments.of(new AvailableTimeRequest(
-                        LocalDateTime.of(범위_하루종일_약속잡기_요청_데이터.getStartDate(), LocalTime.of(0, 0)),
-                        LocalDateTime.of(범위_하루종일_약속잡기_요청_데이터.getStartDate(), LocalTime.of(0, 30))
+                        LocalDateTime.of(범위_하루종일_약속잡기_요청_데이터.getStartDate(), LocalTime.of(0, 0))
                 )),
                 Arguments.of(new AvailableTimeRequest(
-                        LocalDateTime.of(범위_하루종일_약속잡기_요청_데이터.getEndDate().minusDays(1), LocalTime.of(23, 30)),
-                        LocalDateTime.of(범위_하루종일_약속잡기_요청_데이터.getEndDate(), LocalTime.of(0, 0))
+                        LocalDateTime.of(범위_하루종일_약속잡기_요청_데이터.getEndDate().minusDays(1), LocalTime.of(23, 30))
                 ))
         );
     }
@@ -262,13 +257,11 @@ public class AppointmentAcceptanceTest extends AcceptanceTest {
     private static List<Arguments> getUnavailableTimeRequest() {
         return List.of(
                 Arguments.of(new AvailableTimeRequest(
-                        LocalDateTime.of(범위_하루종일_약속잡기_요청_데이터.getEndDate().plusDays(10), LocalTime.of(23, 30)),
-                        LocalDateTime.of(범위_하루종일_약속잡기_요청_데이터.getEndDate().plusDays(11), LocalTime.of(0, 0)))
-                ),
-                Arguments.of(new AvailableTimeRequest(
-                        LocalDateTime.of(범위_하루종일_약속잡기_요청_데이터.getStartDate().minusDays(1), LocalTime.of(23, 30)),
-                        LocalDateTime.of(범위_하루종일_약속잡기_요청_데이터.getStartDate(), LocalTime.of(0, 0))
-                ))
+                                LocalDateTime.of(범위_하루종일_약속잡기_요청_데이터.getEndDate().plusDays(10), LocalTime.of(23, 30))
+                        ),
+                        Arguments.of(new AvailableTimeRequest(
+                                LocalDateTime.of(범위_하루종일_약속잡기_요청_데이터.getStartDate().minusDays(1), LocalTime.of(23, 30))
+                        ))
                 /*
                 TODO 아래 테스트는 400으로 떨어져야 하는데 200이 떨어진다.
                 생성된 데이터는 7일 24시(==8일 0시)이고, 8일00시00분 ~ 8일00시30분 으로 요청을 보내면 실패해야 하는데, 성공한다
@@ -282,7 +275,7 @@ public class AppointmentAcceptanceTest extends AcceptanceTest {
                         LocalDateTime.of(범위_하루종일_약속잡기_요청_데이터.getEndDate().plusDays(1), LocalTime.of(16, 30))
                 ))
                 */
-        );
+                ));
     }
 
     @Test
@@ -379,6 +372,7 @@ public class AppointmentAcceptanceTest extends AcceptanceTest {
     }
 
     @Test
+    // eden modified
     void 약속잡기_가능시간을_중복으로_선택_시_BAD_REQUEST를_반환한다() {
         // given
         String location = 약속잡기_생성을_요청한다(모락_회식_약속잡기_요청_데이터).header("Location");
@@ -389,14 +383,14 @@ public class AppointmentAcceptanceTest extends AcceptanceTest {
                 모락_회식_첫째날_4시부터_4시반_선택_요청_데이터,
                 모락_회식_첫째날_4시반부터_5시_선택_요청_데이터
         );
-        ExtractableResponse<Response> response = 약속잡기_가능_시간_선택을_요청한다(location, requests);
+        약속잡기_가능_시간_선택을_요청한다(location, requests);
+        ExtractableResponse<Response> response = 약속잡기_가능_시간_추천_결과_조회를_요청한다(location);
+        List<RecommendationResponse> recommendationResponses = toObjectList(response, RecommendationResponse.class);
 
         // then
-        Assertions.assertAll(
-                () -> assertThat(response.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value()),
-                () -> assertThat(SimpleRestAssured.extractCodeNumber(response))
-                        .isEqualTo(CustomErrorCode.APPOINTMENT_DUPLICATED_AVAILABLE_TIME_ERROR.getNumber())
-        );
+
+        // then
+        assertThat(recommendationResponses).hasSize(4);
     }
 
     @Test

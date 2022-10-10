@@ -1,6 +1,7 @@
 package com.morak.back.appointment.domain;
 
 import com.morak.back.appointment.exception.AppointmentAuthorizationException;
+import com.morak.back.appointment.exception.AppointmentDomainLogicException;
 import com.morak.back.auth.domain.Member;
 import com.morak.back.core.domain.Code;
 import com.morak.back.core.exception.CustomErrorCode;
@@ -58,9 +59,8 @@ public class Appointment extends BaseEntity {
     @Builder
     private Appointment(Long id, Team team, Member host, String title, String description, LocalDate startDate,
                         LocalDate endDate, LocalTime startTime, LocalTime endTime, Integer durationHours,
-                        Integer durationMinutes, Code code, LocalDateTime closedAt) {
+                        Integer durationMinutes, Code code, LocalDateTime closedAt, LocalDateTime now) {
         super(id);
-        LocalDateTime now = LocalDateTime.now(); // todo : check this
         this.menu = new Menu(team, host, code, title, description, MenuStatus.OPEN,
                 new AppointmentClosedAt(closedAt, now, endDate, endTime));
         this.datePeriod = new DatePeriod(startDate, endDate, now.toLocalDate());
@@ -79,6 +79,7 @@ public class Appointment extends BaseEntity {
     }
 
     public void selectAvailableTime(Set<LocalDateTime> localDateTimes, Member member, LocalDateTime now) {
+        validateStatus();
         Set<AvailableTime> availableTimes = localDateTimes.stream()
                 .filter(dateTime -> isDateTimeBetween(dateTime, now))
                 .map(time -> AvailableTime.builder().member(member).startDateTime(time).build())
@@ -86,6 +87,15 @@ public class Appointment extends BaseEntity {
 
         this.availableTimes.removeIf(availableTime -> availableTime.getMember().equals(member));
         this.availableTimes.addAll(availableTimes);
+    }
+
+    private void validateStatus() {
+        if (isClosed()) {
+            throw new AppointmentDomainLogicException(
+                    CustomErrorCode.APPOINTMENT_ALREADY_CLOSED_ERROR,
+                    getCode() + "코드의 약속잡기는 마감되었습니다."
+            );
+        }
     }
 
     private boolean isDateTimeBetween(LocalDateTime dateTime, LocalDateTime now) {
@@ -128,24 +138,12 @@ public class Appointment extends BaseEntity {
         return this.menu.getStatus().isClosed();
     }
 
-    public LocalDateTime getStartDateTime() {
-        return LocalDateTime.of(datePeriod.getStartDate(), timePeriod.getStartTime().getTime());
-    }
-
-    public LocalDateTime getEndDateTime() {
-        return LocalDateTime.of(datePeriod.getEndDate(), timePeriod.getEndTime().getTime());
-    }
-
     public LocalDate getStartDate() {
         return this.datePeriod.getStartDate();
     }
 
     public LocalDate getEndDate() {
-        LocalDate endDate = this.datePeriod.getEndDate();
-        if (this.timePeriod.getEndTime().equals(LocalTime.MIDNIGHT)) {
-            endDate = endDate.minusDays(1);
-        }
-        return endDate;
+        return this.datePeriod.getEndDate();
     }
 
     public LocalTime getStartTime() {

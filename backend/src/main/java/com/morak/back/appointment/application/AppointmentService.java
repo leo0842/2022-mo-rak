@@ -3,10 +3,10 @@ package com.morak.back.appointment.application;
 import com.morak.back.appointment.domain.Appointment;
 import com.morak.back.appointment.domain.AppointmentRepository;
 import com.morak.back.appointment.domain.AvailableTime;
+import com.morak.back.appointment.domain.MorakTime;
 import com.morak.back.appointment.domain.RankRecommendation;
 import com.morak.back.appointment.domain.RecommendationCells;
 import com.morak.back.appointment.exception.AppointmentAuthorizationException;
-import com.morak.back.appointment.exception.AppointmentDomainLogicException;
 import com.morak.back.appointment.exception.AppointmentNotFoundException;
 import com.morak.back.appointment.ui.dto.AppointmentAllResponse;
 import com.morak.back.appointment.ui.dto.AppointmentCreateRequest;
@@ -32,7 +32,6 @@ import com.morak.back.team.domain.TeamRepository;
 import com.morak.back.team.exception.TeamAuthorizationException;
 import com.morak.back.team.exception.TeamNotFoundException;
 import java.time.LocalDateTime;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -54,7 +53,8 @@ public class AppointmentService {
     private final TeamMemberRepository teamMemberRepository;
 
     private final NotificationService notificationService;
-//    private final Time currentTime;
+
+    private final MorakTime realTime;
 
     public String createAppointment(String teamCode, Long memberId, AppointmentCreateRequest request) {
         Member member = memberRepository.findById(memberId)
@@ -63,9 +63,10 @@ public class AppointmentService {
                 .orElseThrow(() -> TeamNotFoundException.ofTeam(CustomErrorCode.TEAM_NOT_FOUND_ERROR, teamCode));
         validateMemberInTeam(team, member);
 
-        Appointment appointment = request.toAppointment(team, member, Code.generate(CODE_GENERATOR));
+        Appointment appointment = request.toAppointment(team, member, Code.generate(CODE_GENERATOR), realTime.now());
         Appointment savedAppointment = appointmentRepository.save(appointment);
         notificationService.notifyMenuStatus(team, MessageFormatter.formatOpen(FormattableData.from(appointment)));
+
         return savedAppointment.getCode();
     }
 
@@ -124,8 +125,6 @@ public class AppointmentService {
                 ));
 
         validateAppointmentInTeam(team, appointment);
-        validateDuplicatedRequest(requests);
-        validateAppointmentStatus(appointment);// TODO: 2022/10/06 fix this - 도메인 안으로 넣기
         appointment.selectAvailableTime(
                 requests.stream()
                         .map(AvailableTimeRequest::getStart)
@@ -133,25 +132,6 @@ public class AppointmentService {
                 member,
                 LocalDateTime.now() // todo : injection
         );
-    }
-
-    private void validateAppointmentStatus(Appointment appointment) {
-        if (appointment.isClosed()) {
-            throw new AppointmentDomainLogicException(
-                    CustomErrorCode.APPOINTMENT_ALREADY_CLOSED_ERROR,
-                    appointment.getCode() + "코드의 약속잡기는 마감되었습니다."
-            );
-        }
-    }
-
-    private void validateDuplicatedRequest(List<AvailableTimeRequest> availableTimeRequest) {
-        HashSet<AvailableTimeRequest> availableTimeRequestsSet = new HashSet<>(availableTimeRequest);
-        if (availableTimeRequestsSet.size() != availableTimeRequest.size()) {
-            throw new AppointmentDomainLogicException(
-                    CustomErrorCode.APPOINTMENT_DUPLICATED_AVAILABLE_TIME_ERROR,
-                    availableTimeRequest + " 요청된 시간에 중복된 시간이 있습니다."
-            );
-        }
     }
 
     @Transactional(readOnly = true)
