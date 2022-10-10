@@ -6,7 +6,6 @@ import java.util.Objects;
 import javax.persistence.Embeddable;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
-import javax.persistence.Table;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,7 +13,6 @@ import lombok.NoArgsConstructor;
 @Getter
 @Embeddable
 @NoArgsConstructor
-@Table(name = "appointment_available_time")
 public class AvailableTime {
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -22,6 +20,9 @@ public class AvailableTime {
 
     private LocalDateTime startDateTime;
 
+    private LocalDateTime createdAt;
+
+    private LocalDateTime updatedAt;
     @Builder
     private AvailableTime(Long id, Member member,
                           LocalDateTime startDateTime) {

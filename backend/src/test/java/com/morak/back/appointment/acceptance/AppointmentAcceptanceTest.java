@@ -54,7 +54,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 
-public class AppointmentAcceptanceTest extends AcceptanceTest {
+class AppointmentAcceptanceTest extends AcceptanceTest {
 
     private static final String APPOINTMENT_BASE_PATH = "/api/groups/MoraK123/appointments";
 
@@ -133,12 +133,12 @@ public class AppointmentAcceptanceTest extends AcceptanceTest {
 
     @ParameterizedTest
     @CsvSource({
-            "0, 0, 0, 30",
-            "15, 0, 15, 30",
-            "15, 30, 16, 0",
-            "20, 0, 20, 30"
+            "0, 0",
+            "15, 0",
+            "15, 30",
+            "20, 0"
     })
-    void 범위에서_벗어난_약속잡기_가능시간을_선택하면_BAD_REQUEST를_던진다(int startHour, int startMinute, int endHour, int endMinute) {
+    void 범위에서_벗어난_약속잡기_가능시간을_선택하면_BAD_REQUEST를_던진다(int startHour, int startMinute) {
         // given
         String location = 약속잡기_생성을_요청한다(범위_16_20_약속잡기_요청_데이터).header("Location");
 
@@ -163,13 +163,12 @@ public class AppointmentAcceptanceTest extends AcceptanceTest {
 
     @ParameterizedTest
     @CsvSource({
-            "1, 16, 0, 1, 16, 30",
-            "1, 23, 30, 2, 0, 0",
-            "2, 23, 30, 3, 0, 0",
-            "3, 23, 30, 4, 0, 0"
+            "1, 16, 0",
+            "1, 23, 30",
+            "2, 23, 30",
+            "3, 23, 30"
     })
-    void 범위_16시부터_자정까지_속해있는_약속잡기_가능시간을_선택하면_OK를_준다(int startDate, int startHour, int startMinute, int endDate,
-                                                   int endHour, int endMinute) {
+    void 범위_16시부터_자정까지_속해있는_약속잡기_가능시간을_선택하면_OK를_준다(int startDate, int startHour, int startMinute) {
         // given
         String location = 약속잡기_생성을_요청한다(범위_16_24_약속잡기_요청_데이터).header("Location");
 
@@ -187,12 +186,12 @@ public class AppointmentAcceptanceTest extends AcceptanceTest {
 
     @ParameterizedTest
     @CsvSource({
-            "1, 15, 30, 1, 16, 0",
-            "2, 0, 0, 2, 0, 30",
-            "4, 0, 0, 4, 0, 30"
+            "1, 15, 30",
+            "2, 0, 0",
+            "4, 0, 0"
     })
     void 약속잡기가_16시부터_자정까지_선택_가능한_경우_범위를_벗어나면_BAD_REQUEST를_응답한다(
-            int startDate, int startHour, int startMinute, int endDate, int endHour, int endMinute) {
+            int startDate, int startHour, int startMinute) {
         // given
         String location = 약속잡기_생성을_요청한다(범위_16_24_약속잡기_요청_데이터).header("Location");
 
@@ -373,7 +372,7 @@ public class AppointmentAcceptanceTest extends AcceptanceTest {
 
     @Test
     // eden modified
-    void 약속잡기_가능시간을_중복으로_선택_시_BAD_REQUEST를_반환한다() {
+    void 약속잡기_가능시간을_중복으로_선택_시_하나_선택한_것으로_간주한다() {
         // given
         String location = 약속잡기_생성을_요청한다(모락_회식_약속잡기_요청_데이터).header("Location");
 
@@ -383,14 +382,10 @@ public class AppointmentAcceptanceTest extends AcceptanceTest {
                 모락_회식_첫째날_4시부터_4시반_선택_요청_데이터,
                 모락_회식_첫째날_4시반부터_5시_선택_요청_데이터
         );
-        약속잡기_가능_시간_선택을_요청한다(location, requests);
-        ExtractableResponse<Response> response = 약속잡기_가능_시간_추천_결과_조회를_요청한다(location);
-        List<RecommendationResponse> recommendationResponses = toObjectList(response, RecommendationResponse.class);
+        ExtractableResponse<Response> response = 약속잡기_가능_시간_선택을_요청한다(location, requests);
 
         // then
-
-        // then
-        assertThat(recommendationResponses).hasSize(4);
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
     }
 
     @Test

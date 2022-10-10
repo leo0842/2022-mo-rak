@@ -48,7 +48,7 @@ public class Appointment extends BaseEntity {
 
     @ElementCollection
     @CollectionTable(
-            name = "available_times",
+            name = "appointment_available_time",
             joinColumns = @JoinColumn(name = "appointment_id")
     )
     private Set<AvailableTime> availableTimes = new HashSet<>();
