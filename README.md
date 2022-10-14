@@ -78,16 +78,12 @@
 # 인프라
 
 ![image](https://user-images.githubusercontent.com/42317507/194999269-0687cfa0-518f-4930-948f-4c863356bd98.png)
+
 # 📸 볼거리
 
-## 모락의 하루 ☀️
-
-|[모락 브이로그](https://www.youtube.com/watch?v=sLBxjoZ6gKA)|
-| :-: |
-|<img width="480" alt="image" src="https://user-images.githubusercontent.com/42317507/195473291-437e9d6d-1640-45db-87db-3271181becad.png">|
-
-## 모락 데모 영상 🏄
-
-|[1차 데모](https://www.youtube.com/watch?v=R7JO6cLeyhU)|[2차 데모](https://www.youtube.com/watch?v=G4uQTNYNanY)| [3차 데모](https://www.youtube.com/watch?v=RSkr2x3n9B8) | [4차 데모](https://www.youtube.com/watch?v=u_INarrFVZ0) |
-| :-: | :-: | :-: | :-: |
-|<img src="https://user-images.githubusercontent.com/45311765/195134377-3e10f4b5-8134-4342-835f-c7054f4c33d5.png" alt="albur" width="300">|<img src="https://user-images.githubusercontent.com/45311765/195134271-211bbbbb-2dea-4051-a79b-c398d98bd833.png" alt="albur" width="300">|<img src="https://user-images.githubusercontent.com/45311765/195133960-84e90f26-8822-4549-b03f-2710f22c397f.png" alt="albur" width="300">|<img width="320" alt="image" src="https://user-images.githubusercontent.com/42317507/195473170-e4d37bd4-04df-4199-8532-61dfb44d1b4a.png">|
+|[모락 브이로그](https://www.youtube.com/watch?v=sLBxjoZ6gKA)|[1차 데모](https://www.youtube.com/watch?v=R7JO6cLeyhU)|[2차 데모](https://www.youtube.com/watch?v=G4uQTNYNanY)|
+| :-: | :-: | :-: |
+|<img width="400" alt="image" src="https://user-images.githubusercontent.com/42317507/195745372-6791cc40-645c-4446-9667-f3957f8ae8b5.png">|<img width="400" alt="image" src="https://user-images.githubusercontent.com/42317507/195744540-2e08d8ed-57b3-4d5f-b19d-83c91d3c0852.png">|<img width="400" alt="image" src="https://user-images.githubusercontent.com/42317507/195744783-01661f3e-5ba8-4f6e-95cf-4be6faa7bc0d.png">|
+|[3차 데모](https://www.youtube.com/watch?v=RSkr2x3n9B8)|[4차 데모](https://www.youtube.com/watch?v=u_INarrFVZ0)||
+|<img width="400" alt="image" src="https://user-images.githubusercontent.com/42317507/195744439-2c362445-525e-447c-9aac-ee006927e130.png">|<img width="400" alt="image" src="https://user-images.githubusercontent.com/42317507/195745143-297cdc95-9e9d-4f4a-ad8a-e9590a5fbc69.png">|
+|
