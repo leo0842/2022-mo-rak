@@ -120,6 +120,10 @@ public class Appointment extends BaseEntity {
         }
     }
 
+    public void hi() {
+        System.out.println("\"HI\" = " + "HI");
+    }
+
     private void validateSelectTime(LocalDateTime now, LocalDateTime dateTime) {
         if (!isDateTimeBetween(dateTime, now)) {
             throw new AppointmentDomainLogicException(AVAILABLETIME_OUT_OF_RANGE_ERROR,
