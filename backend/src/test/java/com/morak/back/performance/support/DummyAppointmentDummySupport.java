@@ -1,7 +1,5 @@
 package com.morak.back.performance.support;
 
-import static com.morak.back.performance.Fixture.MEMBER_ID1;
-
 import com.morak.back.appointment.domain.Appointment;
 import com.morak.back.appointment.domain.AvailableTime;
 import com.morak.back.core.domain.Code;
@@ -17,6 +15,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -32,21 +31,22 @@ public class DummyAppointmentDummySupport {
     private DummyAppointmentDao appointmentDao;
 
     public void 약속잡기_더미데이터를_추가한다(int teamSize, int appointmentSizePerTeam) {
-        List<DummyAppointment> appointments = makeDummyAppointments(teamSize, appointmentSizePerTeam);
+        List<DummyAppointment> appointments = makeDummyAppointments(1L, teamSize, appointmentSizePerTeam);
         appointmentDao.batchInsertAppointment(appointments);
     }
 
     public void 약속잡기_선택가능시간_더미데이터를_추가한다(int appointmentSize) {
-        List<DummyAvailableTime> availableTimes = makeDummyAvailableTime(appointmentSize);
-        appointmentDao.batchInsertAvailableTime(availableTimes);
+        List<DummyAvailableTime> dummyAvailableTimes = makeDummyAvailableTime(1L, appointmentSize);
+        dummyAvailableTimes.addAll(makeDummyAvailableTime(2L, appointmentSize));
+        appointmentDao.batchInsertAvailableTime(dummyAvailableTimes);
     }
 
-    public List<DummyAppointment> makeDummyAppointments(int teamSize, int appointmentSizePerTeam) {
+    public List<DummyAppointment> makeDummyAppointments(long hostId, int teamSize, int appointmentSizePerTeam) {
         return Stream.iterate(1L, i -> i <= teamSize, i -> i + 1)
                 .flatMap(teamIndex -> IntStream.rangeClosed(1, appointmentSizePerTeam)
                         .mapToObj(appointmentIndex -> DummyAppointment.builder()
-                                .teamCode(Team.builder().id(teamIndex).name("모락").code(Code.generate(new RandomCodeGenerator())).build().getCode())
-                                .hostId(MEMBER_ID1.getId())
+                                .teamCode(String.format("%08d", teamIndex))
+                                .hostId(hostId)
                                 .title("더미 약속잡기" + appointmentIndex)
                                 .subTitle("더미 약속잡기 설명")
                                 .startDate(LocalDate.now().plusDays(1))
@@ -63,7 +63,7 @@ public class DummyAppointmentDummySupport {
                 .collect(Collectors.toList());
     }
 
-    public List<DummyAvailableTime> makeDummyAvailableTime(int appointmentSize) {
+    public List<DummyAvailableTime> makeDummyAvailableTime(long memberId, int appointmentSize) {
         List<DummyAvailableTime> availableTimes = new ArrayList<>();
         for (long appointmentIndex = 1; appointmentIndex <= appointmentSize; appointmentIndex++) {
 //            Appointment appointment = Appointment.builder()
@@ -81,7 +81,7 @@ public class DummyAppointmentDummySupport {
                     availableTimes.add(
                             DummyAvailableTime.builder()
                                     .appointmentId(appointmentIndex)
-                                    .memberId(MEMBER_ID1.getId())
+                                    .memberId(memberId)
                                     .startDateTime(
                                             LocalDateTime.of(LocalDate.now().plusDays(day), LocalTime.of(hour, 0)))
                                     .build()
