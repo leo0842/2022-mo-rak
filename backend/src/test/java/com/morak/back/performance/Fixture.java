@@ -24,8 +24,8 @@ public class Fixture {
     public static final int POLL_ITEM_SIZE_PER_POLL = 3;
     public static final int POLL_ITEM_SIZE = POLL_SIZE * POLL_ITEM_SIZE_PER_POLL;
 
-    public static final Member MEMBER_ID1 = Member.builder().id(1L).build();
-    public static final Member MEMBER_ID2 = Member.builder().id(2L).build();
+    public static final Member MEMBER_ID1 = Member.builder().name("eden").profileUrl("https://eden.com").id(1L).oauthId("oauthId").build();
+    public static final Member MEMBER_ID2 = Member.builder().name("ellie").profileUrl("https://ellie.com").id(2L).oauthId("oauthId1").build();
 
     public static final String TEAM_ID1_LOCATION = "/api/groups/code1";
     public static final String TEAM_ID2_LOCATION = "/api/groups/code2";
